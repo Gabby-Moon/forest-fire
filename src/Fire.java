@@ -1,5 +1,8 @@
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Fire {
     /**
@@ -43,22 +46,45 @@ public class Fire {
         // just a location. What other information might be useful?
         boolean[][] onFire = new boolean[forest.length][forest[0].length];
         Queue<int[]> queue = new LinkedList<>();
-        int depth = 0;
-        queue.add(new int[]{matchR, matchC, depth});
+        int maxDepth = 0;
+        queue.add(new int[]{matchR, matchC, maxDepth});
 
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
             int currR = current[0];
             int currC = current[1];
+            int depth = current[2] + 1;
 
             if(onFire[currR][currC]) {
                 continue;
             }
 
             onFire[currR][currC] = true;
+
+            List<int[]> moves = possibleMoves(forest, current);
             
-            queue.addAll(possibleMoves(forest, current), depth += 1);
+            for(int[] move : moves) {
+                queue.add(new int[]{move[0], move[1], depth});
+                
+            }
+            maxDepth = Math.max(maxDepth, depth);
         }
-        return depth;
+        return maxDepth-1;
+    }
+    public static List<int[]> possibleMoves(char[][] forest, int[] curr) {
+        int[][] directions = {{-1,0},{1,0},{0,-1},{0,1}};
+        List<int[]> moves = new ArrayList<>();
+        for (int[] dir : directions) {
+            int newROW = curr[0] + dir[0];
+            int newCOL = curr[1] + dir[1];
+            if (newROW>=0&&
+                newROW<forest.length&&
+                newCOL>=0&&
+                newCOL<forest[newROW].length&&
+                forest[newROW][newCOL]!='.') {
+                    moves.add(new int[]{newROW,newCOL});
+            }
+        }
+        return moves;
     }
 }
